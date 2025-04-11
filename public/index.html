@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express</title>
+</head>
+<body>
+<h1>chatJPT</h1>
+<p>(c) 2025 jack friend</p>
+
+<div id="wordsContainer"></div> <!-- Displaying words here -->
+<form id="form" action="">
+    <input id="input" autocomplete="off"/>
+    <button>Send</button>
+</form>
+
+<script>
+    const audio = new Audio('audio.wav');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (input.value) {
+            input.value = '';  // Clear input after submission
+            audio.play();
+        }
+    });
+
+    const audioChunks = [];
+
+    socket.on('audio_chunk', (chunk) => {
+        audioChunks.push(new Uint8Array(chunk));
+    });
+
+    socket.on('audio_end', () => {
+        const blob = new Blob(audioChunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('audioPlayer').src = url;
+    });
+
+    socket.on('audio_error', (err) => {
+        console.error('Error:', err);
+    });
+
+    function startStream() {
+        socket.emit('start_audio');
+    }
+</script>
+</body>
+</html>

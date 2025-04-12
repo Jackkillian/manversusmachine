@@ -3,13 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Express</title>
+    <title>chatJPT</title>
+    <style>
+        #wordsContainer {
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 1.2em;
+            line-height: 1.5em;
+        }
+    </style>
+    
 </head>
 <body>
 <h1>chatJPT</h1>
 <p>(c) 2025 jack friend</p>
 
-<div id="wordsContainer"></div> <!-- Displaying words here -->
+<div id="wordsContainer"></div>
 <form id="form" action="">
     <input id="input" autocomplete="off"/>
     <button>Send</button>
@@ -19,34 +28,62 @@
     const audio = new Audio('audio.wav');
     const form = document.getElementById('form');
     const input = document.getElementById('input');
+    const container = document.getElementById('wordsContainer');
+
+    let textData = null;
+
+    // Load the timestamp JSON
+    async function loadTimestamps() {
+        const response = await fetch('timestamps.json');
+        const data = await response.json();
+        return data[0]; // Assuming the first object is what we want
+    }
+
+    // Function to play audio and sync text
+    async function playAndDisplayText() {
+        if (!textData) {
+            textData = await loadTimestamps();
+        }
+
+        console.log(Object.keys(textData))
+
+        const chars = textData.graph_chars;
+        const times = textData.graph_times;
+
+        container.innerHTML = ''; // Clear previous content
+
+        const startTime = performance.now();
+        audio.play();
+
+        function updateText(index) {
+            if (index >= chars.length) return;
+
+            const now = performance.now();
+            const elapsed = (now - startTime) / 1000; // Convert to seconds
+
+            const charTime = times[index][0]; // Start time of this character
+
+            console.log(chars[index] + " corrosponds to " + times[index]);
+
+            if (elapsed >= charTime) {
+                container.innerHTML += chars[index];
+                updateText(index + 1); // Immediately try to show next one
+            } else {
+                setTimeout(() => updateText(index), (charTime - elapsed) * 1000);
+            }
+        }
+
+        updateText(0);
+    }
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-            input.value = '';  // Clear input after submission
-            audio.play();
+            input.value = '';
+            playAndDisplayText(); // Trigger the animated text
         }
     });
-
-    const audioChunks = [];
-
-    socket.on('audio_chunk', (chunk) => {
-        audioChunks.push(new Uint8Array(chunk));
-    });
-
-    socket.on('audio_end', () => {
-        const blob = new Blob(audioChunks, { type: 'audio/wav' });
-        const url = URL.createObjectURL(blob);
-        document.getElementById('audioPlayer').src = url;
-    });
-
-    socket.on('audio_error', (err) => {
-        console.error('Error:', err);
-    });
-
-    function startStream() {
-        socket.emit('start_audio');
-    }
 </script>
+
 </body>
 </html>

@@ -4,83 +4,610 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>chatJPT</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
     <style>
+        body {
+            color: #ffffff;
+            background-color: rgb(33, 33, 33);
+            color-scheme: dark;
+            font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+            font-variation-settings: normal;
+            line-height: 24px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        /* Style for the input field */
+        #input {
+            width: 100%;
+            max-width: 600px; /* Limit the width to be more manageable */
+            padding: 12px 16px;
+            font-size: 1.1em;
+            border-radius: 20px;
+            border: 1px solid #3a3a3a;
+            background-color: #2a2a2a;
+            color: white;
+            outline: none;
+            transition: border 0.2s ease, background-color 0.2s ease;
+        }
+
+        #input:focus {
+            background-color: #3a3a3a;
+            border-color: #4b4b4b;
+        }
+
+        /* Style for the submit button */
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin-left: 10px;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #388e3c;
+        }
+
+        /* Ensure the form stays responsive */
+        form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Optional: For spacing the text input from other elements */
+        form input {
+            margin-right: 10px;
+            font-family: "Noto Sans", sans-serif;
+        }
+
+        .wrapper {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
         #wordsContainer {
             font-family: monospace;
             white-space: pre-wrap;
-            font-size: 1.2em;
+            font-size: 3em;
             line-height: 1.5em;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+
+            width: 100%;
+            height: 100vh;
+            padding: 3rem; /* <-- padding on both sides */
+
+            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.5s ease; /* <-- fade transition */
+
+            /*max-width: 800px; !* NEW: limits width *!*/
+            margin: 0 auto; /* NEW: centers the block */
+            word-wrap: break-word; /* Helps break long words */
+            overflow-wrap: break-word; /* <-- ensures long words wrap */
+            box-sizing: border-box; /* <-- make sure padding doesn’t affect layout */
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        #wordsContainer.visible {
+            opacity: 1;
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .smallboi {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .file-box {
+            background-color: #1e3a8a; /* Dark blue */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 10px;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #3b82f6;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .file-name {
+            font-size: 16px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #3b82f6;
         }
     </style>
-    
+
 </head>
 <body>
-<h1>chatJPT</h1>
-<p>(c) 2025 jack friend</p>
+<div class="wrapper">
+    <div class="container">
+        <h1 class="center" style="font-size: 28px;">What can I help with?</h1>
+        <p class="center smallboi">ChatGPT-Powered Speech Writer<br/>(c) 2025 Jack Freund</p>
 
-<div id="wordsContainer"></div>
-<form id="form" action="">
-    <input id="input" autocomplete="off"/>
-    <button>Send</button>
-</form>
+        <form id="form" action="">
+            <input id="input" autocomplete="off"/>
+            <button>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+
+        <div class="file-box">
+            <div class="file-icon">📄</div>
+            <div class="file-name">Freund Thesis.pdf</div>
+            <button class="delete-btn" aria-label="Delete file">&times;</button>
+        </div>
+    </div>
+
+    <div class="container" id="wordsContainer">
+        <p id="words" class="center"></p>
+        <canvas id="audioCanvas" width="600" height="100"
+                style="display: block; margin: 20px auto; background: rgb(33, 33, 33);"></canvas>
+    </div>
+</div>
 
 <script>
-    const audio = new Audio('audio.wav');
+    const concTimestamps = [
+            [
+                {word: 'In', time: 0},
+                {word: 'conclusion,', time: 0.14482429914641018},
+                {word: 'the', time: 0.868945794878461},
+                {word: 'capabilities', time: 1.0861822435980764},
+                {word: 'of', time: 1.9551280384765373},
+                {word: 'AI', time: 2.0999523376229474},
+                {word: 'are', time: 2.2447766367693576},
+                {word: 'nothing', time: 2.462013085488973},
+                {word: 'short', time: 2.9688981325014083},
+                {word: 'of', time: 3.330958880367434},
+                {word: 'extraordinary.', time: 3.475783179513844},
+                {word: 'AI', time: 4.41714112396551},
+                {word: 'systems', time: 4.56196542311192},
+                {word: 'like', time: 5.068850470124356},
+                {word: 'generative', time: 5.358499068417176},
+                {word: 'models', time: 6.082620564149227},
+                {word: 'can', time: 6.517093461588457},
+                {word: 'now', time: 6.734329910308072},
+                {word: 'perform', time: 6.951566359027687},
+                {word: 'tasks', time: 7.458451406040123},
+                {word: 'that', time: 7.820512153906148},
+                {word: 'were', time: 8.110160752198968},
+                {word: 'once', time: 8.39980935049179},
+                {word: 'thought', time: 8.68945794878461},
+                {word: 'to', time: 9.196342995797046},
+                {word: 'be', time: 9.341167294943457},
+                {word: 'the', time: 9.485991594089867},
+                {word: 'exclusive', time: 9.703228042809483},
+                {word: 'domain', time: 10.35493738896833},
+                {word: 'of', time: 10.78941028640756},
+                {word: 'humans.', time: 10.93423458555397}
+            ],
+            [
+                {word: 'They', time: 11.368707482993198},
+                {word: 'can', time: 11.64520634920635},
+                {word: 'generate', time: 11.852580498866214},
+                {word: 'creative', time: 12.405578231292518},
+                {word: 'works', time: 12.958575963718822},
+                {word: 'of', time: 13.304199546485261},
+                {word: 'art,', time: 13.442448979591838},
+                {word: 'write', time: 13.649823129251702},
+                {word: 'coherent', time: 13.995446712018142},
+                {word: 'essays,', time: 14.548444444444446},
+                {word: 'assist', time: 14.963192743764173},
+                {word: 'with', time: 15.3779410430839},
+                {word: 'complex', time: 15.654439909297052},
+                {word: 'problem-solving,', time: 16.13831292517007},
+                {word: 'and', time: 17.1060589569161},
+                {word: 'even', time: 17.313433106575964},
+                {word: 'engage', time: 17.589931972789117},
+                {word: 'in', time: 18.004680272108846},
+                {word: 'natural', time: 18.142929705215423},
+                {word: 'conversation', time: 18.62680272108844},
+                {word: 'that', time: 19.456299319727894},
+                {word: 'closely', time: 19.732798185941046},
+                {word: 'mimics', time: 20.216671201814062},
+                {word: 'human', time: 20.63141950113379},
+                {word: 'interaction.', time: 20.97704308390023}
+            ],
+            [
+                {word: 'The', time: 21.737414965986396},
+                {word: 'speed', time: 21.953181327703497},
+                {word: 'and', time: 22.312791930565332},
+                {word: 'efficiency', time: 22.528558292282433},
+                {word: 'with', time: 23.247779498006103},
+                {word: 'which', time: 23.53546798029557},
+                {word: 'AI', time: 23.895078583157407},
+                {word: 'can', time: 24.03892282430214},
+                {word: 'process', time: 24.25468918601924},
+                {word: 'information,', time: 24.75814403002581},
+                {word: 'analyze', time: 25.549287356321848},
+                {word: 'data,', time: 26.052742200328417},
+                {word: 'and', time: 26.340430682617885},
+                {word: 'generate', time: 26.556197044334986},
+                {word: 'responses', time: 27.131574008913923},
+                {word: 'are', time: 27.778873094065226},
+                {word: 'revolutionizing', time: 27.994639455782327},
+                {word: 'industries', time: 29.07347126436783},
+                {word: 'and', time: 29.7926924700915},
+                {word: 'reshaping', time: 30.0084588318086},
+                {word: 'the', time: 30.655757916959903},
+                {word: 'way', time: 30.871524278677004},
+                {word: 'we', time: 31.087290640394105},
+                {word: 'approach', time: 31.23113488153884},
+                {word: 'tasks.', time: 31.806511846117775}
+            ],
+            [
+                {word: 'What', time: 32.16612244897959},
+                {word: 'was', time: 32.574290609086134},
+                {word: 'once', time: 32.88041672916604},
+                {word: 'the', time: 33.288584889272585},
+                {word: 'realm', time: 33.594711009352494},
+                {word: 'of', time: 34},
+                {word: 'science', time: 34.2},
+                {word: 'fiction', time: 34.4},
+                {word: 'is', time: 34.7},
+                {word: 'now', time: 34.9},
+                {word: 'a', time: 35.15},
+                {word: 'tangible', time: 35.6},
+                {word: 'reality,', time: 36},
+                {word: 'and', time: 36.2},
+                {word: 'as', time: 36.4},
+                {word: 'AI', time: 36.6},
+                {word: 'continues', time: 37},
+                {word: 'to', time: 37.2},
+                {word: 'evolve,', time: 37.52},
+                {word: 'its', time: 37.7},
+                {word: 'potential', time: 38.1},
+                {word: 'seems', time: 38.4},
+                {word: 'almost', time: 38.8},
+                {word: 'limitless.', time: 39.1}
+            ]
+        ]
+    ;
+
+    const introTimestamps = [
+        [
+            { word: 'It', time: 0 },
+            { word: 'was', time: 0.12819268247839677 },
+            { word: 'a', time: 0.3204817061959919 },
+            { word: 'chilly', time: 0.3845780474351903 },
+            { word: 'autumn', time: 0.7691560948703806 },
+            { word: 'morning', time: 1.153734142305571 },
+            { word: 'when', time: 1.6024085309799596 },
+            { word: 'I', time: 1.8587938959367531 },
+            { word: 'walked', time: 1.9228902371759515 },
+            { word: 'into', time: 2.307468284611142 },
+            { word: 'the', time: 2.5638536495679354 },
+            { word: 'kitchen', time: 2.7561426732855305 },
+            { word: 'and', time: 3.2048170619599192 },
+            { word: 'found', time: 3.3971060856775144 },
+            { word: 'my', time: 3.7175877918735063 },
+            { word: 'younger', time: 3.845780474351903 },
+            { word: 'brother', time: 4.294454863026291 },
+            { word: 'arguing—yes,', time: 4.74312925170068 },
+            { word: 'arguing—with', time: 5.384092664092663 },
+            { word: 'the', time: 6.089152417723845 },
+            { word: 'family', time: 6.281441441441441 },
+            { word: 'toaster.', time: 6.666019488876631 }
+        ],
+        [
+            { word: '“You', time: 7.41469387755102 },
+            { word: 'burnt', time: 7.632195011337868 },
+            { word: 'it', time: 7.994696900982615 },
+            { word: 'again,”', time: 8.139697656840514 },
+            { word: 'he', time: 8.502199546485262 },
+            { word: 'muttered,', time: 8.64720030234316 },
+            { word: 'poking', time: 9.227203325774756 },
+            { word: 'at', time: 9.662205593348451 },
+            { word: 'the', time: 9.80720634920635 },
+            { word: 'blackened', time: 10.024707482993199 },
+            { word: 'edges', time: 10.677210884353743 },
+            { word: 'of', time: 11.03971277399849 },
+            { word: 'his', time: 11.184713529856388 },
+            { word: 'bread.', time: 11.402214663643237 }
+        ],
+        [
+            { word: 'Then', time: 12.064716553287981 },
+            { word: 'he', time: 12.375260580422644 },
+            { word: 'did', time: 12.530532593989976 },
+            { word: 'something', time: 12.763440614340974 },
+            { word: 'strange:', time: 13.462164675393966 },
+            { word: 'he', time: 14.005616722879626 },
+            { word: 'paused,', time: 14.160888736446958 },
+            { word: 'furrowed', time: 14.626704777148953 },
+            { word: 'his', time: 15.24779283141828 },
+            { word: 'brow,', time: 15.480700851769278 },
+            { word: 'and', time: 15.79124487890394 },
+            { word: 'asked', time: 16.02415289925494 },
+            { word: 'the', time: 16.412332933173268 },
+            { word: 'toaster,', time: 16.645240953524265 },
+            { word: '“Why', time: 17.188693001009927 },
+            { word: 'can’t', time: 17.421601021360924 },
+            { word: 'you', time: 17.73214504849559 },
+            { word: 'just', time: 17.965053068846586 },
+            { word: 'get', time: 18.27559709598125 },
+            { word: 'it', time: 18.50850511633225 },
+            { word: 'right?”', time: 18.66377712989958 },
+            { word: 'Of', time: 19.051957163817907 },
+            { word: 'course,', time: 19.207229177385237 },
+            { word: 'the', time: 19.673045218087232 },
+            { word: 'toaster', time: 19.90595323843823 },
+            { word: 'didn’t', time: 20.44940528592389 },
+            { word: 'answer.', time: 20.83758531984222 }
+        ],
+        [
+            { word: 'But', time: 21.60340136054422 },
+            { word: 'what', time: 21.81703113033293 },
+            { word: 'struck', time: 22.10187082338454 },
+            { word: 'me', time: 22.52913036296196 },
+            { word: 'wasn’t', time: 22.67155020948777 },
+            { word: 'the', time: 23.027599825802287 },
+            { word: 'silence—it', time: 23.241229595590998 },
+            { word: 'was', time: 23.882118904957128 },
+            { word: 'the', time: 24.09574867474584 },
+            { word: 'expectation.', time: 24.30937844453455 },
+            { word: 'Somewhere', time: 25.092687600426487 },
+            { word: 'in', time: 25.733576909792617 },
+            { word: 'his', time: 25.875996756318425 },
+            { word: 'mind,', time: 26.089626526107136 },
+            { word: 'my', time: 26.374466219158748 },
+            { word: 'brother', time: 26.516886065684556 },
+            { word: 'had', time: 27.01535552852488 },
+            { word: 'begun', time: 27.22898529831359 },
+            { word: 'to', time: 27.585034914628107 },
+            { word: 'believe', time: 27.727454761153915 },
+            { word: 'that', time: 28.225924223994237 },
+            { word: 'machines', time: 28.51076391704585 },
+            { word: 'should', time: 29.080443303149078 },
+            { word: 'respond', time: 29.5077028427265 },
+            { word: 'like', time: 30.00617230556682 },
+            { word: 'people', time: 30.291011998618433 },
+            { word: 'do.', time: 30.718271538195854 },
+            { word: 'That', time: 30.86069138472166 },
+            { word: 'moment', time: 31.145531077773274 },
+            { word: 'stuck', time: 31.572790617350694 },
+            { word: 'with', time: 31.928840233665213 },
+            { word: 'me.', time: 32.21367992671683 }
+        ],
+        [
+            { word: 'We', time: 32.65609977324263 },
+            { word: 'are', time: 32.82304589137242 },
+            { word: 'surrounded', time: 33.07346506856711 },
+            { word: 'by', time: 33.90819565921607 },
+            { word: 'technology', time: 34.07514177734586 },
+            { word: 'that', time: 34.90987236799482 },
+            { word: 'talks,', time: 35.24376460425441 },
+            { word: 'learns,', time: 35.66112989957889 },
+            { word: 'and', time: 36.16196825396826 },
+            { word: 'adapts,', time: 36.41238743116295 },
+            { word: 'and', time: 36.91322578555232 },
+            { word: 'it’s', time: 37.16364496274701 },
+            { word: 'easy—almost', time: 37.414064139941694 },
+            { word: 'natural—to', time: 38.24879473059065 },
+            { word: 'forget', time: 39.00005226217471 },
+            { word: 'that', time: 39.500890616564085 },
+            { word: "it's", time: 39.83478285282367 },
+            { word: 'not', time: 40.08520203001836 },
+            { word: 'actually', time: 40.335621207213045 },
+            { word: 'human.', time: 41.00340567973221 }
+        ],
+        [
+            { word: "It's", time: 41.72077097505669 },
+            { word: 'just', time: 41.95361379639575 },
+            { word: 'a', time: 42.2640708915145 },
+            { word: 'tool.', time: 42.34168516529419 },
+            { word: 'And', time: 42.65214226041294 },
+            { word: 'yet,', time: 42.884985081752 },
+            { word: 'more', time: 43.11782790309106 },
+            { word: 'and', time: 43.42828499820981 },
+            { word: 'more,', time: 43.661127819548874 },
+            { word: 'we', time: 43.97158491466762 },
+            { word: 'treat', time: 44.126813462227 },
+            { word: 'these', time: 44.514884831125435 },
+            { word: 'tools', time: 44.90295620002387 },
+            { word: 'like', time: 45.29102756892231 },
+            { word: 'teachers,', time: 45.60148466404106 },
+            { word: 'mentors,', time: 46.22239885427856 },
+            { word: 'even', time: 46.76569877073637 },
+            { word: 'friends.', time: 47.07615586585512 }
+        ],
+        [
+            { word: 'That', time: 47.91945578231292 },
+            { word: 'curious', time: 48.185784896236974 },
+            { word: 'scene', time: 48.65186084560406 },
+            { word: 'with', time: 48.98477223800913 },
+            { word: 'a', time: 49.25110135193318 },
+            { word: 'toaster', time: 49.317683630414194 },
+            { word: 'might’ve', time: 49.78375957978128 },
+            { word: 'seemed', time: 50.24983552914837 },
+            { word: 'like', time: 50.649329200034444 },
+            { word: 'a', time: 50.915658313958495 },
+            { word: 'joke,', time: 50.98224059243951 },
+            { word: 'but', time: 51.24856970636356 },
+            { word: 'maybe', time: 51.4483165418066 },
+            { word: 'it’s', time: 51.781227934211664 },
+            { word: 'not', time: 51.9809747696547 },
+            { word: 'so', time: 52.18072160509774 },
+            { word: 'funny', time: 52.31388616205976 },
+            { word: 'after', time: 52.646797554464825 },
+            { word: 'all.', time: 52.97970894686989 }
+        ]
+    ];
+
+    const concAudio = new Audio('conclusion.wav');
+    const introAudio = new Audio('introduction.wav');
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
     const form = document.getElementById('form');
     const input = document.getElementById('input');
-    const container = document.getElementById('wordsContainer');
+    const container = document.getElementById('words');
 
-    let textData = null;
+    const canvas = document.getElementById('audioCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Load the timestamp JSON
-    async function loadTimestamps() {
-        const response = await fetch('timestamps.json');
-        const data = await response.json();
-        return data[0]; // Assuming the first object is what we want
+    let lastValues = new Array(32).fill(0);
+
+    let dataArray;
+
+    function drawVisualizer() {
+        requestAnimationFrame(drawVisualizer);
+        analyser.getByteFrequencyData(dataArray);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barCount = 32;
+        const barWidth = canvas.width / barCount;
+
+        for (let i = 0; i < barCount; i++) {
+            const index = Math.floor(Math.pow(i / barCount, 2) * dataArray.length);
+            const target = (dataArray[index] / 255) * canvas.height;
+            // Smooth the height transition
+            lastValues[i] += (target - lastValues[i]) * 0.2;
+
+            const x = i * barWidth;
+            const y = canvas.height - lastValues[i];
+
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(x + barWidth * 0.25, y, barWidth * 0.5, lastValues[i]);
+        }
     }
 
-    // Function to play audio and sync text
-    async function playAndDisplayText() {
-        if (!textData) {
-            textData = await loadTimestamps();
-        }
-
-        console.log(Object.keys(textData))
-
-        const chars = textData.graph_chars;
-        const times = textData.graph_times;
+    async function playAndDisplayText(isIntro) {
+        const audio = isIntro ? introAudio : concAudio;
+        const source = audioContext.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.fftSize;
+        dataArray = new Uint8Array(bufferLength);
 
         container.innerHTML = ''; // Clear previous content
-
+        let flatWords;
+        if (isIntro) {
+            flatWords = introTimestamps.flat();
+        } else {
+            flatWords = concTimestamps.flat();
+        }
         const startTime = performance.now();
-        audio.play();
 
-        function updateText(index) {
-            if (index >= chars.length) return;
+        drawVisualizer();
+
+        function updateWord(index) {
+            if (index >= flatWords.length) {
+                setTimeout(() => {
+                    location.reload();
+                }, 5000);
+                return;
+            }
 
             const now = performance.now();
-            const elapsed = (now - startTime) / 1000; // Convert to seconds
+            const elapsed = (now - startTime) / 1000; // seconds
 
-            const charTime = times[index][0]; // Start time of this character
+            const wordObj = flatWords[index];
 
-            console.log(chars[index] + " corrosponds to " + times[index]);
-
-            if (elapsed >= charTime) {
-                container.innerHTML += chars[index];
-                updateText(index + 1); // Immediately try to show next one
+            if (elapsed >= wordObj.time) {
+                container.textContent += wordObj.word + ' ';
+                updateWord(index + 1);
             } else {
-                setTimeout(() => updateText(index), (charTime - elapsed) * 1000);
+                setTimeout(() => updateWord(index), (wordObj.time - elapsed) * 1000);
             }
         }
 
-        updateText(0);
+        updateWord(0);
+
+        // Resume audio context if it's not started yet
+        if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
+
+        audio.play();
     }
+
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
+            const containerDiv = document.querySelector('.container');
+            const wordsDiv = document.getElementById('wordsContainer');
+
+            containerDiv.classList.add('hidden');
+
+            const val = input.value;
+
+            // Show wordsContainer *after* container fades out
+            setTimeout(() => {
+                wordsDiv.classList.remove('hidden');
+                wordsDiv.classList.add('visible');
+                let isIntro = val.toLowerCase().includes("intro")
+                playAndDisplayText(isIntro);
+            }, 500);
+
             input.value = '';
-            playAndDisplayText(); // Trigger the animated text
         }
     });
 </script>

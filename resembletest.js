@@ -1,5 +1,5 @@
 const {Resemble} = require('@resemble/node')
-const {createWriteStream} = require("node:fs");
+const {createWriteStream, writeFileSync} = require("node:fs");
 
 Resemble.setApiKey('VISECZGNZaszFE38Szt8rgtt')
 Resemble.setSynthesisUrl('https://f.cluster.resemble.ai/stream')
@@ -11,7 +11,7 @@ async function doWork() {
     try {
         let stream = await Resemble.v2.clips.stream(
             {
-                data: 'In conclusion, the capabilities of AI are nothing short of extraordinary. AI systems like generative models can now perform tasks that were once thought to be the exclusive domain of humans. They can generate creative works of art, write coherent essays, assist with complex problem-solving, and even engage in natural conversation that closely mimics human interaction. The speed and efficiency with which AI can process information, analyze data, and generate responses are revolutionizing industries and reshaping the way we approach tasks. What was once the realm of science fiction is now a tangible reality, and as AI continues to evolve, its potential seems almost limitless–',
+                data: 'It was a chilly autumn morning when I walked into the kitchen and found my younger brother arguing—yes, arguing—with the family toaster. “You burnt it again,” he muttered, poking at the blackened edges of his bread. Then he did something strange: he paused, furrowed his brow, and asked the toaster, “Why can’t you just get it right?” Of course, the toaster didn’t answer. But what struck me wasn’t the silence—it was the expectation. Somewhere in his mind, my brother had begun to believe that machines should respond like people do. That moment stuck with me. We are surrounded by technology that talks, learns, and adapts, and it’s easy—almost natural—to forget that it\'s not actually human. It\'s just a tool. And yet, more and more, we treat these tools like teachers, mentors, even friends. That curious scene with a toaster might’ve seemed like a joke, but maybe it’s not so funny after all.',
                 project_uuid: projectUuid,
                 voice_uuid: voiceUuid,
             },
@@ -20,17 +20,14 @@ async function doWork() {
             },
         );
 
-        const filePath = 'output.wav';
+        const filePath = 'introduction.wav';
         const writeStream = createWriteStream(filePath);
-        const timestampWriteStream = createWriteStream('timestamps.json');
+        const timestampWriteStream = createWriteStream('timestamps2.json');
         const timestampArray = [];
 
         for await (const chunk of stream) {
-            const { data, timestamps } = chunk
+            const {data, timestamps} = chunk
             if (data) {
-                // The data variable is a byte array representing a chunk of a WAV audio file.
-                // console.log(data)
-
                 console.log("Wrote data")
                 const buffer = Buffer.from(data);
                 writeStream.write(buffer);
@@ -44,6 +41,11 @@ async function doWork() {
 
         timestampWriteStream.write(JSON.stringify(timestampArray));
         timestampWriteStream.end();
+
+        console.log('Streaming finished');
+        console.log(timestampArray)
+        writeFileSync('timestamps2.json', JSON.stringify(timestampArray));
+        console.log('Done')
 
     } catch (e) {
         console.log("Error")
